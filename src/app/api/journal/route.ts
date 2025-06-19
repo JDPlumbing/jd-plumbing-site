@@ -19,8 +19,16 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const body = await req.json();
-  const slug = `${new Date().toISOString().split('T')[0]}-${body.title.toLowerCase().replace(/\s+/g, '-')}.json`;
-  await fs.writeFile(path.join(journalDir, slug), JSON.stringify(body, null, 2));
-  return NextResponse.json({ status: 'ok' });
+  const body = await req.json()
+
+  const safeTitle = (body.title || 'untitled').trim().toLowerCase().replace(/\s+/g, '-')
+  const dateStamp = new Date().toISOString().split('T')[0]
+  const slug = `${dateStamp}-${safeTitle}.json`
+
+  const fullPath = path.join(journalDir, slug)
+  console.log('📁 Saving journal entry to:', fullPath)
+
+  await fs.writeFile(fullPath, JSON.stringify(body, null, 2))
+
+  return NextResponse.json({ status: 'ok' })
 }
