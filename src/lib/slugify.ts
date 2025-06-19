@@ -1,5 +1,5 @@
 // src/lib/slugify.ts
-export function slugify(text: string): string {
+export function slugify(text: string) {
   return text
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
