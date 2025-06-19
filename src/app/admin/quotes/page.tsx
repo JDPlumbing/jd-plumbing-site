@@ -21,10 +21,12 @@ export default function AdminQuotesPage() {
 
   const addItem = () => setItems([...items, { description: '', cost: 0 }])
   const updateItem = (i: number, key: keyof LineItem, value: any) => {
-    const copy = [...items]
-    copy[i][key] = key === 'cost' ? parseFloat(value) : value
-    setItems(copy)
+  const copy = [...items]
+  const updatedValue = key === 'cost' ? parseFloat(value) : value
+  copy[i] = { ...copy[i], [key]: updatedValue }
+  setItems(copy)
   }
+
 
   const total = items.reduce((sum, i) => sum + (i.cost || 0), 0)
 
