@@ -1,0 +1,8 @@
+User-agent: *
+Disallow: /admin
+Disallow: /train
+Disallow: /login
+
+Allow: /
+
+Sitemap: https://jdplumbingsoflo.com/sitemap.xml
