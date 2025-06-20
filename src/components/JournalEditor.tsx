@@ -12,8 +12,8 @@ import Heading from '@tiptap/extension-heading'
 import Image from '@tiptap/extension-image'
 
 type Props = {
-  content: string
-  onChange: (value: string) => void
+  content: any // Tiptap JSON
+  onChange: (value: any) => void // Emits Tiptap JSON
 }
 
 export default function JournalEditor({ content, onChange }: Props) {
@@ -35,12 +35,12 @@ export default function JournalEditor({ content, onChange }: Props) {
     ],
     content,
     onUpdate: ({ editor }) => {
-      onChange(editor.getHTML())
+      onChange(editor.getJSON()) // ✅ emit JSON, not HTML
     },
   })
 
   useEffect(() => {
-    if (editor && content !== editor.getHTML()) {
+    if (editor && JSON.stringify(content) !== JSON.stringify(editor.getJSON())) {
       editor.commands.setContent(content)
     }
   }, [content])

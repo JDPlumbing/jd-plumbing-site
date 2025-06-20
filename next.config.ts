@@ -1,5 +1,3 @@
-// next.config.ts
-
 const nextConfig = {
   eslint: {
     // Let production builds proceed even with ESLint issues

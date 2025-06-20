@@ -1,48 +1,58 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState, useEffect } from 'react'
 import JournalEditor from '@/components/JournalEditor'
 
-// Define the shape of a journal entry
-type JournalEntry = {
-  title: string
-  body: string
-  date: string
-}
-
-export default function JournalPage() {
-  const [entries, setEntries] = useState<JournalEntry[]>([])
+export default function AdminJournalPage() {
+  const [entries, setEntries] = useState<any[]>([])
   const [title, setTitle] = useState('')
-  const [body, setBody] = useState('')
-  const [visibility, setVisibility] = useState<'internal' | 'login' | 'public'>('internal')
+  const [content, setContent] = useState('')
   const [published, setPublished] = useState(false)
-
+  const [visibility, setVisibility] = useState('internal')
+  const [editingId, setEditingId] = useState<string | null>(null)
 
   useEffect(() => {
     fetch('/api/journal')
       .then((res) => res.json())
-      .then((data: JournalEntry[]) => setEntries(data))
+      .then((data) => setEntries(data))
   }, [])
 
+  const resetForm = () => {
+    setTitle('')
+    setContent('')
+    setPublished(false)
+    setVisibility('internal')
+    setEditingId(null)
+  }
+
   const submit = async () => {
+    const id = editingId || `${Date.now()}-${title.toLowerCase().replace(/\s+/g, '-')}`
+    const entry = {
+      id,
+      title,
+      content,
+      published,
+      visibility,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    }
+
     await fetch('/api/journal', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        title,
-        body,
-        date: new Date().toISOString(),
-        visibility,
-        published,
-      }),
+      body: JSON.stringify(entry),
     })
 
-
-    setTitle('')
-    setBody('')
-
     const res = await fetch('/api/journal')
-    const updated: JournalEntry[] = await res.json()
+    const updated = await res.json()
+    setEntries(updated)
+    resetForm()
+  }
+
+  const del = async (id: string) => {
+    await fetch(`/api/journal?id=${id}`, { method: 'DELETE' })
+    const res = await fetch('/api/journal')
+    const updated = await res.json()
     setEntries(updated)
   }
 
@@ -57,11 +67,10 @@ export default function JournalPage() {
           placeholder="Title"
           className="w-full border p-2"
         />
-      <div className="space-y-2">
-        <label className="block text-white">Visibility</label>
+
         <select
           value={visibility}
-          onChange={(e) => setVisibility(e.target.value as any)}
+          onChange={(e) => setVisibility(e.target.value)}
           className="w-full border p-2 bg-neutral-900 text-white"
         >
           <option value="internal">Internal Only</option>
@@ -77,30 +86,86 @@ export default function JournalPage() {
           />
           Published
         </label>
+
+        <JournalEditor content={content} onChange={setContent} />
+
+        <div className="flex gap-2">
+          <button
+            className="bg-blue-600 text-white px-4 py-2 rounded"
+            onClick={submit}
+          >
+            {editingId ? 'Update Entry' : 'Save Entry'}
+          </button>
+
+          {editingId && (
+            <button
+              className="bg-neutral-600 text-white px-4 py-2 rounded"
+              onClick={resetForm}
+            >
+              Cancel
+            </button>
+          )}
+        </div>
       </div>
 
-        <JournalEditor content={body} onChange={setBody} />
+      {/* Entries list */}
+<div className="space-y-4 pt-8">
+  {entries.map((entry) => (
+    <div
+      key={entry.id}
+      className="border border-neutral-700 rounded p-4 bg-neutral-900"
+    >
+      <h2 className="font-bold text-white">{entry.title}</h2>
+
+      {/* Status line */}
+      <p className="text-sm text-gray-400">
+        {entry.published ? 'Published' : 'Draft'} — {entry.visibility}
+      </p>
+
+      {/* Button row */}
+      <div className="mt-2 flex gap-2">
+        <button
+          onClick={() => {
+            setTitle(entry.title)
+            setContent(entry.content)
+            setPublished(entry.published)
+            setVisibility(entry.visibility)
+          }}
+          className="bg-yellow-600 text-white px-3 py-1 rounded text-sm"
+        >
+          Edit
+        </button>
 
         <button
-          onClick={submit}
-          className="bg-blue-600 text-white px-4 py-2 rounded"
+          onClick={() => {
+            if (confirm('Delete this entry?')) {
+              fetch(`/api/journal?id=${entry.id}`, {
+                method: 'DELETE',
+              }).then(async () => {
+                const res = await fetch('/api/journal')
+                const updated = await res.json()
+                setEntries(updated)
+              })
+            }
+          }}
+          className="bg-red-600 text-white px-3 py-1 rounded text-sm"
         >
-          Save Entry
+          Delete
         </button>
-      </div>
 
-      <div className="mt-8 space-y-4">
-        {entries.map((entry, idx) => (
-          <div key={idx} className="border p-4 rounded">
-            <h2 className="text-xl font-semibold">{entry.title}</h2>
-            <p className="text-sm text-gray-500">{entry.date}</p>
-            <div
-              className="mt-2 prose max-w-none"
-              dangerouslySetInnerHTML={{ __html: entry.body }}
-            />
-          </div>
-        ))}
+        <a
+          href={`/journal/${entry.id}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="bg-blue-700 text-white px-3 py-1 rounded text-sm"
+        >
+          Preview
+        </a>
       </div>
+    </div>
+  ))}
+</div>
+
     </div>
   )
 }

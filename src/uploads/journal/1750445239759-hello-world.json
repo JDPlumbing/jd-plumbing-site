@@ -1,0 +1,22 @@
+{
+  "id": "1750445239759-hello-world",
+  "title": "Hello World",
+  "content": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "test"
+          }
+        ]
+      }
+    ]
+  },
+  "visibility": "public",
+  "published": true,
+  "createdAt": "2025-06-20T18:47:19.759Z",
+  "updatedAt": "2025-06-20T18:47:19.759Z"
+}

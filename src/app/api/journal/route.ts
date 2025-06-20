@@ -1,34 +1,56 @@
-// src/app/api/journal/route.ts
-import { promises as fs } from 'fs';
-import path from 'path';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server'
+import fs from 'fs'
+import path from 'path'
 
-const journalDir = path.join(process.cwd(), 'src/uploads/journal');
+// Absolute path to journal storage
+const JOURNAL_DIR = path.join(process.cwd(), 'src/uploads/journal')
 
 export async function GET() {
-  const files = await fs.readdir(journalDir);
-  const entries = await Promise.all(
-    files
-      .filter((file) => file.endsWith('.json'))
-      .map(async (file) => {
-        const content = await fs.readFile(path.join(journalDir, file), 'utf-8');
-        return JSON.parse(content);
-      })
-  );
-  return NextResponse.json(entries);
+  const files = fs.readdirSync(JOURNAL_DIR)
+  const entries = files.map((file) => {
+    const fullPath = path.join(JOURNAL_DIR, file)
+    const content = fs.readFileSync(fullPath, 'utf-8')
+    return JSON.parse(content)
+  })
+
+  return NextResponse.json(entries)
 }
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   const body = await req.json()
+  const { id, title, content, visibility, published, createdAt, updatedAt } = body
 
-  const safeTitle = (body.title || 'untitled').trim().toLowerCase().replace(/\s+/g, '-')
-  const dateStamp = new Date().toISOString().split('T')[0]
-  const slug = `${dateStamp}-${safeTitle}.json`
+  if (!id || !title || !content || !visibility) {
+    return new NextResponse('Missing required fields', { status: 400 })
+  }
 
-  const fullPath = path.join(journalDir, slug)
-  console.log('📁 Saving journal entry to:', fullPath)
+  const filePath = path.join(JOURNAL_DIR, `${id}.json`)
+  const entry = {
+    id,
+    title,
+    content,
+    visibility,
+    published: published ?? false, // ✅ ensure default is false if omitted
+    createdAt: createdAt ?? new Date().toISOString(),
+    updatedAt: updatedAt ?? new Date().toISOString(),
+  }
 
-  await fs.writeFile(fullPath, JSON.stringify(body, null, 2))
+  fs.writeFileSync(filePath, JSON.stringify(entry, null, 2))
+  return new NextResponse('Saved', { status: 200 })
+}
 
-  return NextResponse.json({ status: 'ok' })
+export async function DELETE(req: NextRequest) {
+  const id = req.nextUrl.searchParams.get('id')
+
+  if (!id) {
+    return new NextResponse('Missing ID', { status: 400 })
+  }
+
+  const filePath = path.join(JOURNAL_DIR, `${id}.json`)
+  if (!fs.existsSync(filePath)) {
+    return new NextResponse('Entry not found', { status: 404 })
+  }
+
+  fs.unlinkSync(filePath)
+  return new NextResponse('Deleted', { status: 200 })
 }
