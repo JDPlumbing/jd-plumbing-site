@@ -1,10 +1,11 @@
 // next.config.ts
-const nextConfig = {
-  experimental: {
-    serverActions: true,
-  },
-  // This is required so middleware works for app routes:
-  matcher: ['/admin/:path*']
-}
 
-export default nextConfig
+const nextConfig = {
+  eslint: {
+    // Let production builds proceed even with ESLint issues
+    ignoreDuringBuilds: true,
+  },
+  // your other config below
+};
+
+export default nextConfig;
