@@ -1,27 +1,20 @@
-// src/app/journal/[slug]/page.tsx
 import fs from 'fs/promises'
 import path from 'path'
 import { notFound } from 'next/navigation'
 import JsonRenderer from '@/components/tiptap/JsonRenderer'
 
-type Entry = {
-  id: string
-  title: string
-  content: any
-  createdAt: string
-  published: boolean
-  visibility: string
+interface Props {
+  params: { slug: string }
 }
 
-// ✅ this is now a valid Server Component
-export default async function JournalEntryPage({ params }: { params: { slug: string } }) {
+export default async function JournalEntryPage({ params }: Props) {
   const filePath = path.join(process.cwd(), 'src/uploads/journal', `${params.slug}.json`)
 
   try {
     const raw = await fs.readFile(filePath, 'utf-8')
-    const entry: Entry = JSON.parse(raw)
+    const entry = JSON.parse(raw)
 
-    // Must be published + public
+    // Only show published + public
     if (!entry.published || entry.visibility !== 'public') return notFound()
 
     return (
@@ -36,7 +29,7 @@ export default async function JournalEntryPage({ params }: { params: { slug: str
       </section>
     )
   } catch (err) {
-    console.error('❌ Failed to load entry:', err)
+    console.error('❌ Failed to render entry:', err)
     return notFound()
   }
 }
