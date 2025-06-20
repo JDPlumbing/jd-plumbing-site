@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 export function DocUploader() {
   const [file, setFile] = useState<File | null>(null);
   const [message, setMessage] = useState("");
-  const [files, setFiles] = useState([]);
+  const [files, setFiles] = useState<Record<string, any>>({});
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -30,6 +30,8 @@ export function DocUploader() {
     if (res.ok) {
       setMessage("✅ Upload successful.");
       setFile(null);
+      const updated = await fetch("/api/admin/docs/meta").then((r) => r.json());
+      setFiles(updated);
     } else {
       setMessage("❌ Upload failed.");
     }
@@ -47,16 +49,18 @@ export function DocUploader() {
 
     if (res.ok) {
       setMessage("🗑️ File deleted.");
+      const updated = await fetch("/api/admin/docs/meta").then((r) => r.json());
+      setFiles(updated);
     } else {
       setMessage("❌ Delete failed.");
     }
   };
 
   useEffect(() => {
-    fetch("/api/admin/list-docs")
+    fetch("/api/admin/docs/meta")
       .then((res) => res.json())
-      .then((data) => setFiles(data.files));
-  }, [message]); // refresh list on upload/delete
+      .then((data) => setFiles(data));
+  }, []);
 
   return (
     <div className="p-6 bg-neutral-900 rounded border border-neutral-700">
@@ -79,23 +83,23 @@ export function DocUploader() {
       <div className="mt-8">
         <h3 className="text-lg font-semibold mb-2">📂 Uploaded Files</h3>
         <ul className="space-y-2 text-sm text-gray-300">
-          {files.map((file: any) => (
+          {Object.entries(files).map(([filename, meta]) => (
             <li
-              key={file.name}
-              className="flex items-center justify-between border-b border-gray-700 pb-1"
+              key={filename}
+              className="flex justify-between items-center border-b border-gray-700 pb-1"
             >
-              <span>{file.name}</span>
+              <span>{meta.title || filename}</span>
               <div className="space-x-2">
                 <a
-                  href={`/uploads/${file.name}`}
+                  href={`/uploads/${filename}`}
+                  className="text-blue-400 hover:underline"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-400 hover:underline"
                 >
                   Download
                 </a>
                 <button
-                  onClick={() => handleDelete(file.name)}
+                  onClick={() => handleDelete(filename)}
                   className="text-red-500 hover:underline"
                 >
                   Delete
