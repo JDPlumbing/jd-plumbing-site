@@ -4,12 +4,14 @@ import { notFound } from 'next/navigation'
 import JsonRenderer from '@/components/tiptap/JsonRenderer'
 
 export async function generateStaticParams() {
-  return [] // optional, safe default
+  return [] // No pre-rendering needed
 }
 
-type Params = { params: { slug: string } }
+interface PageProps {
+  params: { slug: string }
+}
 
-export default async function JournalEntryPage({ params }: Params) {
+export default async function JournalEntryPage({ params }: PageProps) {
   const filePath = path.join(process.cwd(), 'src/uploads/journal', `${params.slug}.json`)
 
   try {
