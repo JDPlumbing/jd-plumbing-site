@@ -3,15 +3,7 @@ import path from 'path'
 import { notFound } from 'next/navigation'
 import JsonRenderer from '@/components/tiptap/JsonRenderer'
 
-export async function generateStaticParams() {
-  return [] // No pre-rendering needed
-}
-
-interface PageProps {
-  params: { slug: string }
-}
-
-export default async function JournalEntryPage({ params }: PageProps) {
+export default async function JournalEntryPage({ params }: any) {
   const filePath = path.join(process.cwd(), 'src/uploads/journal', `${params.slug}.json`)
 
   try {
@@ -34,7 +26,7 @@ export default async function JournalEntryPage({ params }: PageProps) {
       </section>
     )
   } catch (err) {
-    console.error('❌ Failed to load or parse entry:', err)
+    console.error('❌ Failed to read or parse journal entry:', err)
     return notFound()
   }
 }
