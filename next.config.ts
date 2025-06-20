@@ -1,7 +1,10 @@
-import type { NextConfig } from "next";
+// next.config.ts
+const nextConfig = {
+  experimental: {
+    serverActions: true,
+  },
+  // This is required so middleware works for app routes:
+  matcher: ['/admin/:path*']
+}
 
-const nextConfig: NextConfig = {
-  /* config options here */
-};
-
-export default nextConfig;
+export default nextConfig
