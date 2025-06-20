@@ -4,17 +4,19 @@ import { notFound } from 'next/navigation'
 import JsonRenderer from '@/components/tiptap/JsonRenderer'
 
 export async function generateStaticParams() {
-  return [] // optional: or pre-render slugs if you want
+  return [] // optional, safe default
 }
 
-export default async function JournalEntryPage({ params }: { params: { slug: string } }) {
+type Params = { params: { slug: string } }
+
+export default async function JournalEntryPage({ params }: Params) {
   const filePath = path.join(process.cwd(), 'src/uploads/journal', `${params.slug}.json`)
 
   try {
-    const raw = await fs.readFile(filePath, 'utf-8')
+    const raw = await fs.readFile(filePath, 'utf8')
     const entry = JSON.parse(raw)
 
-    if (!entry || entry.visibility !== 'public' || entry.published !== true) {
+    if (!entry || !entry.published || entry.visibility !== 'public') {
       return notFound()
     }
 
@@ -30,7 +32,7 @@ export default async function JournalEntryPage({ params }: { params: { slug: str
       </section>
     )
   } catch (err) {
-    console.error('❌ Error reading entry:', err)
+    console.error('❌ Failed to load or parse entry:', err)
     return notFound()
   }
 }
