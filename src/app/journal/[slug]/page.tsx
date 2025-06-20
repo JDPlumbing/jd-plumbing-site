@@ -3,19 +3,20 @@ import path from 'path'
 import { notFound } from 'next/navigation'
 import JsonRenderer from '@/components/tiptap/JsonRenderer'
 
-interface Props {
-  params: { slug: string }
+export async function generateStaticParams() {
+  return [] // optional: or pre-render slugs if you want
 }
 
-export default async function JournalEntryPage({ params }: Props) {
+export default async function JournalEntryPage({ params }: { params: { slug: string } }) {
   const filePath = path.join(process.cwd(), 'src/uploads/journal', `${params.slug}.json`)
 
   try {
     const raw = await fs.readFile(filePath, 'utf-8')
     const entry = JSON.parse(raw)
 
-    // Only show published + public
-    if (!entry.published || entry.visibility !== 'public') return notFound()
+    if (!entry || entry.visibility !== 'public' || entry.published !== true) {
+      return notFound()
+    }
 
     return (
       <section className="max-w-4xl mx-auto py-12 px-6">
@@ -29,7 +30,7 @@ export default async function JournalEntryPage({ params }: Props) {
       </section>
     )
   } catch (err) {
-    console.error('❌ Failed to render entry:', err)
+    console.error('❌ Error reading entry:', err)
     return notFound()
   }
 }
