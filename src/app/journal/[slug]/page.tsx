@@ -1,11 +1,16 @@
-// src/app/journal/[slug]/page.tsx
-
 import fs from 'fs/promises'
 import path from 'path'
 import { notFound } from 'next/navigation'
 import JsonRenderer from '@/components/tiptap/JsonRenderer'
 
-export default async function JournalEntryPage({ params }: { params: { slug: string } }) {
+// ✅ Patch: define proper type for `params` to satisfy Next.js App Router
+type Props = {
+  params: {
+    slug: string
+  }
+}
+
+export default async function JournalEntryPage({ params }: Props) {
   const dir = path.join(process.cwd(), 'src/uploads/journal')
   const filePath = path.join(dir, `${params.slug}.json`)
 
@@ -26,7 +31,7 @@ export default async function JournalEntryPage({ params }: { params: { slug: str
     return notFound()
   }
 
-  // Sanity check for required fields
+  // ✅ Patch: ensure entry includes required flags for public viewing
   if (
     typeof entry !== 'object' ||
     typeof entry.title !== 'string' ||
