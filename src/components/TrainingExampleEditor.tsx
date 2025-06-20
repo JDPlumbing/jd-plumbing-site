@@ -2,33 +2,28 @@
 
 import { useState } from 'react'
 import { slugify } from '@/lib/slugify'
+import { schemaMap } from '@/schemas'
 
 type Props = {
   onSaved: () => void
-  schemaRefs?: string[]
 }
 
-export default function TrainingExampleEditor({ onSaved, schemaRefs = [] }: Props) {
+export default function TrainingExampleEditor({ onSaved }: Props) {
   const [input, setInput] = useState('')
   const [expected, setExpected] = useState('')
   const [intent, setIntent] = useState('')
-  const [grip, setGrip] = useState('')
-  const [drip, setDrip] = useState('')
-  const [scrip, setScrip] = useState('')
   const [notes, setNotes] = useState('')
+  const [schemaValues, setSchemaValues] = useState<Record<string, string>>({})
 
   const save = async () => {
     const payload = {
       input,
       expected,
       intent,
-      grip,
-      drip,
-      scrip,
       notes,
-      schemaRefs, // <== now included in saved payload
       slug: slugify(input.slice(0, 30)),
       timestamp: new Date().toISOString(),
+      ...schemaValues,
     }
 
     await fetch('/api/train', {
@@ -40,10 +35,8 @@ export default function TrainingExampleEditor({ onSaved, schemaRefs = [] }: Prop
     setInput('')
     setExpected('')
     setIntent('')
-    setGrip('')
-    setDrip('')
-    setScrip('')
     setNotes('')
+    setSchemaValues({})
     onSaved()
   }
 
@@ -61,38 +54,37 @@ export default function TrainingExampleEditor({ onSaved, schemaRefs = [] }: Prop
         value={expected}
         onChange={(e) => setExpected(e.target.value)}
       />
+      <input
+        className="w-full p-2 bg-neutral-800 rounded"
+        placeholder="Intent"
+        value={intent}
+        onChange={(e) => setIntent(e.target.value)}
+      />
+
       <div className="flex flex-wrap gap-2">
-        <input
-          className="p-2 bg-neutral-800 rounded"
-          placeholder="Intent"
-          value={intent}
-          onChange={(e) => setIntent(e.target.value)}
-        />
-        <input
-          className="p-2 bg-neutral-800 rounded"
-          placeholder="gripN"
-          value={grip}
-          onChange={(e) => setGrip(e.target.value)}
-        />
-        <input
-          className="p-2 bg-neutral-800 rounded"
-          placeholder="dripN"
-          value={drip}
-          onChange={(e) => setDrip(e.target.value)}
-        />
-        <input
-          className="p-2 bg-neutral-800 rounded"
-          placeholder="scripN"
-          value={scrip}
-          onChange={(e) => setScrip(e.target.value)}
-        />
+        {Object.keys(schemaMap).map((key) => (
+          <input
+            key={key}
+            className="p-2 bg-neutral-800 rounded"
+            placeholder={key}
+            value={schemaValues[key] || ''}
+            onChange={(e) =>
+              setSchemaValues((prev) => ({
+                ...prev,
+                [key]: e.target.value,
+              }))
+            }
+          />
+        ))}
       </div>
+
       <textarea
         className="w-full p-2 bg-neutral-800 rounded"
         placeholder="Notes / rationale"
         value={notes}
         onChange={(e) => setNotes(e.target.value)}
       />
+
       <button
         onClick={save}
         className="bg-blue-600 text-white px-4 py-2 rounded"

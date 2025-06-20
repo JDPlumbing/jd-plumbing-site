@@ -1,16 +1,17 @@
 // src/app/api/agent/route.ts
 import { NextRequest, NextResponse } from 'next/server'
 import { OpenAI } from 'openai'
-import fs from 'fs'
-import path from 'path'
+import { schemaMap } from '@/schemas'
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! })
 
+// Infer valid keys from schemaMap
+type SchemaKey = keyof typeof schemaMap
+
 export async function POST(req: NextRequest) {
-  // Ensure correct types for incoming body
   const body = (await req.json()) as {
     prompt: string
-    schemaRefs?: string[]
+    schemaRefs?: SchemaKey[]
     agent?: 'openai' | 'runpod'
   }
 
@@ -20,18 +21,18 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Missing prompt' }, { status: 400 })
   }
 
-  // Load schemas
-  const schemas: string[] = schemaRefs.map((ref) => {
-    const filePath = path.join(process.cwd(), 'src/schemas', `${ref}.md`)
-    try {
-      return fs.readFileSync(filePath, 'utf-8')
-    } catch {
-      return `⚠️ Missing schema: ${ref}`
-    }
+  // Convert schema keys to summaries
+  const schemas = schemaRefs.map((ref) => {
+    const capsule = schemaMap[ref]
+    if (!capsule) return `⚠️ Missing schema: ${ref}`
+
+    return `## ${capsule.title}\n\n${capsule.description}\n\nFields:\n${Object.entries(capsule.fields)
+      .map(([k, v]) => `- **${k}**: ${v}`)
+      .join('\n')}`
   })
 
   const systemPrompt = `You are Drippy, a plumbing agent.\nSchemas:\n\n${schemas.join(
-    '\n---\n'
+    '\n\n---\n\n'
   )}`
 
   try {
