@@ -4,11 +4,7 @@ import { useEffect, useState } from 'react'
 import { listQuotes } from '@/lib/quotes'
 import type { Quote } from '@/types'
 import QuoteEditor from './QuoteEditor'
-interface Props {
-  initial?: Quote;
-  onClose: () => void;
-  onSave: () => void;
-}
+
 export default function QuotesTable() {
   const [quotes, setQuotes] = useState<Quote[]>([])
   const [loading, setLoading] = useState(true)

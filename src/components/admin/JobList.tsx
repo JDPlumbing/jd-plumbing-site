@@ -21,8 +21,7 @@ export default function JobEditor({ job, updated_by, onUpdated }: Props) {
         title,
         description,
         status,
-        updated_by,
-      });
+        });
       onUpdated();
     } catch (e) {
       console.error(e);

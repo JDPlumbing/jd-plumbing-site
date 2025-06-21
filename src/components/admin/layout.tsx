@@ -1,13 +1,10 @@
 import AdminSidebar from '@/components/admin/AdminSidebar'
-import '@/app/globals.css'
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen">
       <AdminSidebar />
-      <main className="flex-1 bg-gray-100 dark:bg-black p-6 overflow-y-auto">
-        {children}
-      </main>
+      <main className="flex-1 p-6 bg-gray-100 dark:bg-black">{children}</main>
     </div>
   )
 }

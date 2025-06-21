@@ -30,7 +30,8 @@ export default function JobEditor({ job, updated_by, onUpdated }: Props) {
 
       onUpdated();
     } catch (e) {
-      console.error(e);
+      console.error('Job save error:', e);
+
     } finally {
       setSaving(false);
     }
