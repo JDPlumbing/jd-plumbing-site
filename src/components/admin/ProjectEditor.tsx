@@ -1,11 +1,11 @@
 'use client'
 import { useState } from 'react'
-import { createJob, updateJob, deleteJob } from '@/lib/jobs'
+import { createProject, updateProject, deleteProject } from '@/lib/projects'
 
-export default function JobEditor({ initial, onClose, onSave }) {
+export default function ProjectEditor({ initial, onClose, onSave }) {
   const [form, setForm] = useState({
-    project_id: initial?.project_id || '',
-    status: initial?.status || 'todo',
+    title: initial?.title || '',
+    status: initial?.status || 'planning',
     start_date: initial?.start_date || '',
     end_date: initial?.end_date || '',
     description: initial?.description || ''
@@ -15,17 +15,17 @@ export default function JobEditor({ initial, onClose, onSave }) {
   const handleSave = async () => {
     setSaving(true)
     if (initial?.id) {
-      await updateJob(initial.id, form)
+      await updateProject(initial.id, form)
     } else {
-      await createJob(form)
+      await createProject(form)
     }
     setSaving(false)
     onSave()
   }
 
   const handleDelete = async () => {
-    if (initial?.id && confirm('Delete this job?')) {
-      await deleteJob(initial.id)
+    if (initial?.id && confirm('Delete this project?')) {
+      await deleteProject(initial.id)
       onSave()
     }
   }
@@ -34,15 +34,15 @@ export default function JobEditor({ initial, onClose, onSave }) {
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
       <div className="bg-white p-6 rounded shadow w-full max-w-md">
         <h3 className="text-lg font-bold mb-4">
-          {initial?.id ? 'Edit Job' : 'New Job'}
+          {initial?.id ? 'Edit Project' : 'New Project'}
         </h3>
 
         <label className="block mb-2">
-          Project ID
+          Title
           <input
             className="w-full border p-2"
-            value={form.project_id}
-            onChange={(e) => setForm({ ...form, project_id: e.target.value })}
+            value={form.title}
+            onChange={(e) => setForm({ ...form, title: e.target.value })}
           />
         </label>
 
@@ -53,9 +53,9 @@ export default function JobEditor({ initial, onClose, onSave }) {
             value={form.status}
             onChange={(e) => setForm({ ...form, status: e.target.value })}
           >
-            <option value="todo">To Do</option>
-            <option value="in_progress">In Progress</option>
-            <option value="done">Done</option>
+            <option value="planning">Planning</option>
+            <option value="active">Active</option>
+            <option value="complete">Complete</option>
             <option value="cancelled">Cancelled</option>
           </select>
         </label>

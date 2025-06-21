@@ -1,10 +1,5 @@
-import { DocUploader } from "@/components/DocUploader";
+import DocsManager from '@/components/admin/DocsManager'
 
-export default function AdminDocsPage() {
-  return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">📚 Docs Manager</h1>
-      <DocUploader />
-    </div>
-  );
+export default function DocsPage() {
+  return <DocsManager />
 }

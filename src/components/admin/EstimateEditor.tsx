@@ -1,31 +1,31 @@
 'use client'
 import { useState } from 'react'
-import { createQuote, updateQuote, deleteQuote } from '@/lib/quotes'
+import { createEstimate, updateEstimate, deleteEstimate } from '@/lib/estimates'
 
-export default function QuoteEditor({ initial, onClose, onSave }) {
+export default function EstimateEditor({ initial, onClose, onSave }) {
   const [form, setForm] = useState({
     title: initial?.title || '',
-    status: initial?.status || 'draft',
     total_amount: initial?.total_amount || 0,
     scope: initial?.scope || '',
-    exclusions: initial?.exclusions || ''
+    exclusions: initial?.exclusions || '',
+    verified: initial?.verified || false
   })
   const [saving, setSaving] = useState(false)
 
   const handleSave = async () => {
     setSaving(true)
     if (initial?.id) {
-      await updateQuote(initial.id, form)
+      await updateEstimate(initial.id, form)
     } else {
-      await createQuote(form)
+      await createEstimate(form)
     }
     setSaving(false)
     onSave()
   }
 
   const handleDelete = async () => {
-    if (initial?.id && confirm('Delete this quote?')) {
-      await deleteQuote(initial.id)
+    if (initial?.id && confirm('Delete this estimate?')) {
+      await deleteEstimate(initial.id)
       onSave()
     }
   }
@@ -34,7 +34,7 @@ export default function QuoteEditor({ initial, onClose, onSave }) {
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
       <div className="bg-white p-6 rounded shadow w-full max-w-md">
         <h3 className="text-lg font-bold mb-4">
-          {initial?.id ? 'Edit Quote' : 'New Quote'}
+          {initial?.id ? 'Edit Estimate' : 'New Estimate'}
         </h3>
 
         <label className="block mb-2">
@@ -44,20 +44,6 @@ export default function QuoteEditor({ initial, onClose, onSave }) {
             value={form.title}
             onChange={(e) => setForm({ ...form, title: e.target.value })}
           />
-        </label>
-
-        <label className="block mb-2">
-          Status
-          <select
-            className="w-full border p-2"
-            value={form.status}
-            onChange={(e) => setForm({ ...form, status: e.target.value })}
-          >
-            <option value="draft">Draft</option>
-            <option value="sent">Sent</option>
-            <option value="accepted">Accepted</option>
-            <option value="rejected">Rejected</option>
-          </select>
         </label>
 
         <label className="block mb-2">
@@ -86,6 +72,16 @@ export default function QuoteEditor({ initial, onClose, onSave }) {
             value={form.exclusions}
             onChange={(e) => setForm({ ...form, exclusions: e.target.value })}
           />
+        </label>
+
+        <label className="flex items-center mb-4">
+          <input
+            type="checkbox"
+            className="mr-2"
+            checked={form.verified}
+            onChange={(e) => setForm({ ...form, verified: e.target.checked })}
+          />
+          Verified for quote?
         </label>
 
         <div className="flex justify-between items-center">

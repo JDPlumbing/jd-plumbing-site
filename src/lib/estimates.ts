@@ -1,17 +1,17 @@
 import { supabase } from './supabase'
 
-export async function fetchJobs() {
+export async function fetchEstimates() {
   const { data, error } = await supabase
-    .from('jobs')
+    .from('estimates')
     .select('*')
     .order('created_at', { ascending: false })
   if (error) throw new Error(error.message)
   return data
 }
 
-export async function createJob(payload) {
+export async function createEstimate(payload) {
   const { data, error } = await supabase
-    .from('jobs')
+    .from('estimates')
     .insert([payload])
     .select()
     .single()
@@ -19,9 +19,9 @@ export async function createJob(payload) {
   return data
 }
 
-export async function updateJob(id, updates) {
+export async function updateEstimate(id, updates) {
   const { data, error } = await supabase
-    .from('jobs')
+    .from('estimates')
     .update(updates)
     .eq('id', id)
     .select()
@@ -30,9 +30,9 @@ export async function updateJob(id, updates) {
   return data
 }
 
-export async function deleteJob(id) {
+export async function deleteEstimate(id) {
   const { error } = await supabase
-    .from('jobs')
+    .from('estimates')
     .delete()
     .eq('id', id)
   if (error) throw new Error(error.message)

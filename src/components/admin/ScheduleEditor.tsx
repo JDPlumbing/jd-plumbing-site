@@ -1,31 +1,31 @@
 'use client'
 import { useState } from 'react'
-import { createJob, updateJob, deleteJob } from '@/lib/jobs'
+import { createSchedule, updateSchedule, deleteSchedule } from '@/lib/schedules'
 
-export default function JobEditor({ initial, onClose, onSave }) {
+export default function ScheduleEditor({ initial, onClose, onSave }) {
   const [form, setForm] = useState({
-    project_id: initial?.project_id || '',
-    status: initial?.status || 'todo',
-    start_date: initial?.start_date || '',
-    end_date: initial?.end_date || '',
-    description: initial?.description || ''
+    title: initial?.title || '',
+    type: initial?.type || 'visit',
+    scheduled_for: initial?.scheduled_for?.slice(0, 10) || '',
+    person_id: initial?.person_id || '',
+    project_id: initial?.project_id || ''
   })
   const [saving, setSaving] = useState(false)
 
   const handleSave = async () => {
     setSaving(true)
     if (initial?.id) {
-      await updateJob(initial.id, form)
+      await updateSchedule(initial.id, form)
     } else {
-      await createJob(form)
+      await createSchedule(form)
     }
     setSaving(false)
     onSave()
   }
 
   const handleDelete = async () => {
-    if (initial?.id && confirm('Delete this job?')) {
-      await deleteJob(initial.id)
+    if (initial?.id && confirm('Delete this schedule?')) {
+      await deleteSchedule(initial.id)
       onSave()
     }
   }
@@ -34,58 +34,57 @@ export default function JobEditor({ initial, onClose, onSave }) {
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
       <div className="bg-white p-6 rounded shadow w-full max-w-md">
         <h3 className="text-lg font-bold mb-4">
-          {initial?.id ? 'Edit Job' : 'New Job'}
+          {initial?.id ? 'Edit Schedule' : 'New Schedule'}
         </h3>
 
         <label className="block mb-2">
-          Project ID
+          Title
           <input
             className="w-full border p-2"
-            value={form.project_id}
-            onChange={(e) => setForm({ ...form, project_id: e.target.value })}
+            value={form.title}
+            onChange={(e) => setForm({ ...form, title: e.target.value })}
           />
         </label>
 
         <label className="block mb-2">
-          Status
+          Type
           <select
             className="w-full border p-2"
-            value={form.status}
-            onChange={(e) => setForm({ ...form, status: e.target.value })}
+            value={form.type}
+            onChange={(e) => setForm({ ...form, type: e.target.value })}
           >
-            <option value="todo">To Do</option>
-            <option value="in_progress">In Progress</option>
-            <option value="done">Done</option>
-            <option value="cancelled">Cancelled</option>
+            <option value="visit">Visit</option>
+            <option value="inspection">Inspection</option>
+            <option value="call">Call</option>
+            <option value="meeting">Meeting</option>
           </select>
         </label>
 
         <label className="block mb-2">
-          Start Date
+          Date
           <input
             type="date"
             className="w-full border p-2"
-            value={form.start_date}
-            onChange={(e) => setForm({ ...form, start_date: e.target.value })}
+            value={form.scheduled_for}
+            onChange={(e) => setForm({ ...form, scheduled_for: e.target.value })}
+          />
+        </label>
+
+        <label className="block mb-2">
+          Person ID (optional)
+          <input
+            className="w-full border p-2"
+            value={form.person_id}
+            onChange={(e) => setForm({ ...form, person_id: e.target.value })}
           />
         </label>
 
         <label className="block mb-4">
-          End Date
+          Project ID (optional)
           <input
-            type="date"
             className="w-full border p-2"
-            value={form.end_date}
-            onChange={(e) => setForm({ ...form, end_date: e.target.value })}
-          />
-        </label>
-
-        <label className="block mb-4">
-          Description
-          <textarea
-            className="w-full border p-2"
-            value={form.description}
-            onChange={(e) => setForm({ ...form, description: e.target.value })}
+            value={form.project_id}
+            onChange={(e) => setForm({ ...form, project_id: e.target.value })}
           />
         </label>
 

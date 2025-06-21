@@ -1,17 +1,17 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { fetchJobs } from '@/lib/jobs'
-import JobEditor from './JobEditor'
+import { fetchEstimates } from '@/lib/estimates'
+import EstimateEditor from './EstimateEditor'
 
-export default function JobsTable() {
-  const [jobs, setJobs] = useState<any[]>([])
+export default function EstimatesTable() {
+  const [estimates, setEstimates] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [selected, setSelected] = useState(null)
 
   const load = () => {
     setLoading(true)
-    fetchJobs().then((data) => {
-      setJobs(data)
+    fetchEstimates().then((data) => {
+      setEstimates(data)
       setLoading(false)
     })
   }
@@ -20,17 +20,17 @@ export default function JobsTable() {
     load()
   }, [])
 
-  if (loading) return <p>Loading jobs...</p>
+  if (loading) return <p>Loading estimates...</p>
 
   return (
     <div className="p-4 border rounded">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold">Jobs</h2>
+        <h2 className="text-xl font-bold">Estimates</h2>
         <button
           onClick={() => setSelected({})}
           className="px-3 py-1 bg-blue-600 text-white rounded"
         >
-          + New Job
+          + New Estimate
         </button>
       </div>
 
@@ -38,31 +38,29 @@ export default function JobsTable() {
         <thead>
           <tr className="border-b">
             <th className="p-2">ID</th>
-            <th className="p-2">Project</th>
-            <th className="p-2">Status</th>
-            <th className="p-2">Start</th>
-            <th className="p-2">End</th>
+            <th className="p-2">Title</th>
+            <th className="p-2">Amount</th>
+            <th className="p-2">Verified</th>
           </tr>
         </thead>
         <tbody>
-          {jobs.map((job) => (
+          {estimates.map((e) => (
             <tr
-              key={job.id}
+              key={e.id}
               className="border-t cursor-pointer hover:bg-gray-100"
-              onClick={() => setSelected(job)}
+              onClick={() => setSelected(e)}
             >
-              <td className="p-2">{job.id.slice(0, 8)}...</td>
-              <td className="p-2">{job.project_id || '-'}</td>
-              <td className="p-2">{job.status}</td>
-              <td className="p-2">{job.start_date}</td>
-              <td className="p-2">{job.end_date}</td>
+              <td className="p-2">{e.id.slice(0, 8)}...</td>
+              <td className="p-2">{e.title}</td>
+              <td className="p-2">${e.total_amount}</td>
+              <td className="p-2">{e.verified ? '✅' : '❌'}</td>
             </tr>
           ))}
         </tbody>
       </table>
 
       {selected && (
-        <JobEditor
+        <EstimateEditor
           initial={selected}
           onClose={() => setSelected(null)}
           onSave={() => {
