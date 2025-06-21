@@ -1,6 +1,7 @@
 // src/lib/jobs.ts
 import { Job } from '@/types'
-import { createClient } from '@/lib/supabase'
+import { supabase } from '@/lib/supabase'
+
 
 export async function listJobs(filters: {
   assigned_to?: string
