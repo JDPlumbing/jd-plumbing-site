@@ -1,42 +1,40 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { listAuditLogs } from '@/lib/audit'
+import type { AuditLog } from '@/types'
 
-export default function AuditLog() {
-  const [logs, setLogs] = useState([])
+export default function AuditLogViewer() {
+  const [logs, setLogs] = useState<AuditLog[]>([])
 
   useEffect(() => {
+    const fetchLogs = async () => {
+      const result = await listAuditLogs()
+      setLogs(result)
+    }
     fetchLogs()
   }, [])
 
-  const fetchLogs = async () => {
-    const result = await listAuditLogs()
-    setLogs(result)
-  }
-
   return (
-    <div className="p-4">
-      <h2 className="text-xl font-bold mb-4">Audit Log</h2>
-      <div className="space-y-2">
-        {logs.map((log) => (
-          <div
-            key={log.id}
-            className="border border-gray-300 rounded p-3 bg-gray-50 text-sm"
-          >
-            <div>
-              <strong>{log.actor || 'Unknown'}</strong> — {log.action}
-            </div>
-            <div className="text-xs text-gray-500">
-              {new Date(log.created_at).toLocaleString()}
-            </div>
-            {log.meta && (
-              <pre className="text-xs mt-1 bg-gray-100 p-2 rounded overflow-x-auto">
-                {JSON.stringify(log.meta, null, 2)}
-              </pre>
-            )}
-          </div>
-        ))}
-      </div>
+    <div className="p-4 space-y-4">
+      <h2 className="text-xl font-bold">Audit Log</h2>
+      {logs.map((log) => (
+        <div key={log.id} className="border p-3 rounded">
+          <p>
+            <strong>{log.actor_id || 'Unknown'}</strong> — {log.action}
+          </p>
+          <p className="text-sm text-gray-600">
+            {new Date(log.timestamp).toLocaleString()}
+          </p>
+          <p className="text-sm">
+            Target: {log.target_type} ({log.target_id})
+          </p>
+          {log.meta && (
+            <pre className="bg-gray-100 p-2 mt-2 text-xs rounded overflow-x-auto">
+              {JSON.stringify(log.meta, null, 2)}
+            </pre>
+          )}
+        </div>
+      ))}
     </div>
   )
 }

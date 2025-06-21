@@ -1,16 +1,18 @@
 'use client'
+
 import { useEffect, useState } from 'react'
 import { fetchEstimates } from '@/lib/estimates'
+import type { Estimate } from '@/types'
 import EstimateEditor from './EstimateEditor'
 
 export default function EstimatesTable() {
-  const [estimates, setEstimates] = useState<any[]>([])
+  const [estimates, setEstimates] = useState<Estimate[]>([])
   const [loading, setLoading] = useState(true)
-  const [selected, setSelected] = useState(null)
+  const [selected, setSelected] = useState<Estimate | null>(null)
 
   const load = () => {
     setLoading(true)
-    fetchEstimates().then((data) => {
+    fetchEstimates().then((data: Estimate[]) => {
       setEstimates(data)
       setLoading(false)
     })
@@ -27,7 +29,22 @@ export default function EstimatesTable() {
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold">Estimates</h2>
         <button
-          onClick={() => setSelected({})}
+          onClick={() =>
+            setSelected({
+              id: '',
+              job_id: '',
+              labor_hours: 0,
+              material_cost: 0,
+              total: 0,
+              notes: '',
+              created_at: '',
+              title: '',
+              scope: '',
+              exclusions: '',
+              verified: false,
+              total_amount: 0,
+            } as Estimate)
+          }
           className="px-3 py-1 bg-blue-600 text-white rounded"
         >
           + New Estimate
@@ -51,9 +68,10 @@ export default function EstimatesTable() {
               onClick={() => setSelected(e)}
             >
               <td className="p-2">{e.id.slice(0, 8)}...</td>
-              <td className="p-2">{e.title}</td>
-              <td className="p-2">${e.total_amount}</td>
-              <td className="p-2">{e.verified ? '✅' : '❌'}</td>
+              <td className="p-2">{(e as any).title || '—'}</td>
+              <td className="p-2">${e.total_amount?.toFixed(2) || '0.00'}</td>
+
+              <td className="p-2">{(e as any).verified ? '✅' : '❌'}</td>
             </tr>
           ))}
         </tbody>

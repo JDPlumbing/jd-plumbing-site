@@ -1,19 +1,26 @@
 'use client'
+
 import { useEffect, useState } from 'react'
-import { fetchJobs } from '@/lib/jobs'
+import { listJobs } from '@/lib/jobs'
+import type { Job } from '@/types'
 import JobEditor from './JobEditor'
 
-export default function JobsTable() {
-  const [jobs, setJobs] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
-  const [selected, setSelected] = useState(null)
 
-  const load = () => {
+
+
+export default function JobsTable() {
+  const [jobs, setJobs] = useState<Job[]>([])
+  const [loading, setLoading] = useState(true)
+  const [selected, setSelected] = useState<Job | null>(null)
+
+  const load = async () => {
     setLoading(true)
-    fetchJobs().then((data) => {
+    try {
+      const data = await listJobs()
       setJobs(data)
+    } finally {
       setLoading(false)
-    })
+    }
   }
 
   useEffect(() => {
@@ -27,7 +34,18 @@ export default function JobsTable() {
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold">Jobs</h2>
         <button
-          onClick={() => setSelected({})}
+          onClick={() =>
+            setSelected({
+              id: '',
+              project_id: '',
+              customer_id: '',
+              status: 'pending',
+              title: '',
+              description: '',
+              created_at: '',
+              updated_at: '',
+            } as Job)
+          }
           className="px-3 py-1 bg-blue-600 text-white rounded"
         >
           + New Job
@@ -54,8 +72,8 @@ export default function JobsTable() {
               <td className="p-2">{job.id.slice(0, 8)}...</td>
               <td className="p-2">{job.project_id || '-'}</td>
               <td className="p-2">{job.status}</td>
-              <td className="p-2">{job.start_date}</td>
-              <td className="p-2">{job.end_date}</td>
+              <td className="p-2">{(job as any).start_date || '-'}</td>
+              <td className="p-2">{(job as any).end_date || '-'}</td>
             </tr>
           ))}
         </tbody>
@@ -63,13 +81,14 @@ export default function JobsTable() {
 
       {selected && (
         <JobEditor
-          initial={selected}
-          onClose={() => setSelected(null)}
-          onSave={() => {
+          job={selected}
+          updated_by={process.env.NEXT_PUBLIC_JD_AGENT_ID || ''}
+          onUpdated={() => {
             setSelected(null)
             load()
           }}
         />
+
       )}
     </div>
   )

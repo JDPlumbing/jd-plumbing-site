@@ -1,39 +1,35 @@
-import { supabase } from './supabase'
+// lib/invoices.ts
+import { supabase } from '@/lib/supabase'
+import type { Invoice } from '@/types'
 
-export async function fetchInvoices() {
-  const { data, error } = await supabase
-    .from('invoices')
-    .select('*')
-    .order('created_at', { ascending: false })
-  if (error) throw new Error(error.message)
-  return data
+export async function listInvoices(): Promise<Invoice[]> {
+  const { data, error } = await supabase.from('invoices').select('*')
+  if (error) throw error
+  return data || []
 }
 
-export async function createInvoice(payload) {
+export async function createInvoice(payload: Partial<Invoice>): Promise<Invoice> {
   const { data, error } = await supabase
     .from('invoices')
-    .insert([payload])
+    .insert(payload)
     .select()
     .single()
-  if (error) throw new Error(error.message)
+  if (error) throw error
   return data
 }
 
-export async function updateInvoice(id, updates) {
+export async function updateInvoice(id: string, updates: Partial<Invoice>): Promise<Invoice> {
   const { data, error } = await supabase
     .from('invoices')
     .update(updates)
     .eq('id', id)
     .select()
     .single()
-  if (error) throw new Error(error.message)
+  if (error) throw error
   return data
 }
 
-export async function deleteInvoice(id) {
-  const { error } = await supabase
-    .from('invoices')
-    .delete()
-    .eq('id', id)
-  if (error) throw new Error(error.message)
+export async function deleteInvoice(id: string): Promise<void> {
+  const { error } = await supabase.from('invoices').delete().eq('id', id)
+  if (error) throw error
 }

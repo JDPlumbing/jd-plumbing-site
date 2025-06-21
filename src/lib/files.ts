@@ -1,35 +1,34 @@
-import { createClient } from '@/lib/supabase'
+// lib/files.ts
+import { supabase } from '@/lib/supabase'
+import type { FileMeta } from '@/types'
 
-const supabase = createClient()
+export async function listFiles(): Promise<FileMeta[]> {
+  const { data, error } = await supabase.storage.from('files').list('uploads', { limit: 100 })
 
-export async function listFiles() {
-  const { data, error } = await supabase.storage.from('files').list('', { limit: 100 })
   if (error) {
     console.error('[files:list]', error)
     return []
   }
 
-  return data.map((f) => ({
-    name: f.name,
-    url: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/files/${f.name}`,
-    metadata: {
-      size: f.metadata?.size,
-      mimetype: f.metadata?.mimetype
-    }
+  return data.map((item) => ({
+    id: item.name,
+    name: item.name,
+    path: item.name,
+    type: item.metadata?.mimetype || '',
+    size: item.metadata?.size || 0,
+    url: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/files/uploads/${item.name}`,
   }))
 }
 
-export async function uploadFile(file: File) {
-  const fileName = `${Date.now()}-${file.name}`
-  const { error } = await supabase.storage.from('files').upload(fileName, file)
-  if (error) {
-    console.error('[files:upload]', error)
-  }
+
+export async function uploadFile(file: File, folder: string): Promise<string> {
+  const filename = `${Date.now()}-${file.name}`
+  const { error } = await supabase.storage.from('uploads').upload(`${folder}/${filename}`, file)
+  if (error) throw error
+  return filename
 }
 
-export async function deleteFile(name: string) {
-  const { error } = await supabase.storage.from('files').remove([name])
-  if (error) {
-    console.error('[files:delete]', error)
-  }
+export async function deleteFile(path: string): Promise<void> {
+  const { error } = await supabase.storage.from('uploads').remove([path])
+  if (error) throw error
 }

@@ -1,15 +1,30 @@
 'use client'
+
 import { useState } from 'react'
+import type { Estimate } from '@/types'
 import { createEstimate, updateEstimate, deleteEstimate } from '@/lib/estimates'
 
-export default function EstimateEditor({ initial, onClose, onSave }) {
-  const [form, setForm] = useState({
-    title: initial?.title || '',
-    total_amount: initial?.total_amount || 0,
-    scope: initial?.scope || '',
-    exclusions: initial?.exclusions || '',
-    verified: initial?.verified || false
+interface Props {
+  initial: Partial<Estimate>
+  onClose: () => void
+  onSave: () => void
+}
+
+export default function EstimateEditor({ initial, onClose, onSave }: Props) {
+  const [form, setForm] = useState<{
+    title: string
+    total_amount: number
+    scope: string
+    exclusions: string
+    verified: boolean
+  }>({
+    title: initial?.title ?? '',
+    total_amount: initial?.total_amount ?? 0,
+    scope: initial?.scope ?? '',
+    exclusions: initial?.exclusions ?? '',
+    verified: initial?.verified ?? false,
   })
+
   const [saving, setSaving] = useState(false)
 
   const handleSave = async () => {
@@ -52,7 +67,9 @@ export default function EstimateEditor({ initial, onClose, onSave }) {
             type="number"
             className="w-full border p-2"
             value={form.total_amount}
-            onChange={(e) => setForm({ ...form, total_amount: parseFloat(e.target.value) })}
+            onChange={(e) =>
+              setForm({ ...form, total_amount: parseFloat(e.target.value) || 0 })
+            }
           />
         </label>
 

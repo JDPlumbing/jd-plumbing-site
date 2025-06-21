@@ -1,26 +1,48 @@
 'use client'
+
 import { useState } from 'react'
 import { createProject, updateProject, deleteProject } from '@/lib/projects'
+import type { Project } from '@/types'
 
-export default function ProjectEditor({ initial, onClose, onSave }) {
-  const [form, setForm] = useState({
+interface Props {
+  initial: Project
+  onClose: () => void
+  onSave: () => void
+}
+
+interface ProjectForm {
+  title: string
+  status: 'planned' | 'planning' | 'active' | 'complete' | 'cancelled'
+  start_date: string
+  end_date: string
+  description: string
+}
+
+export default function ProjectEditor({ initial, onClose, onSave }: Props) {
+  const [form, setForm] = useState<ProjectForm>({
     title: initial?.title || '',
     status: initial?.status || 'planning',
     start_date: initial?.start_date || '',
     end_date: initial?.end_date || '',
-    description: initial?.description || ''
+    description: initial?.description || '',
   })
+
   const [saving, setSaving] = useState(false)
 
   const handleSave = async () => {
     setSaving(true)
-    if (initial?.id) {
-      await updateProject(initial.id, form)
-    } else {
-      await createProject(form)
+    try {
+      if (initial?.id) {
+        await updateProject(initial.id, form)
+      } else {
+        await createProject(form)
+      }
+      onSave()
+    } catch (e) {
+      console.error(e)
+    } finally {
+      setSaving(false)
     }
-    setSaving(false)
-    onSave()
   }
 
   const handleDelete = async () => {
@@ -51,7 +73,7 @@ export default function ProjectEditor({ initial, onClose, onSave }) {
           <select
             className="w-full border p-2"
             value={form.status}
-            onChange={(e) => setForm({ ...form, status: e.target.value })}
+            onChange={(e) => setForm({ ...form, status: e.target.value as ProjectForm['status'] })}
           >
             <option value="planning">Planning</option>
             <option value="active">Active</option>

@@ -1,8 +1,15 @@
 'use client'
 import { useState } from 'react'
 import { createInvoice, updateInvoice, deleteInvoice } from '@/lib/invoices'
+import type { Invoice } from '@/types'
 
-export default function InvoiceEditor({ initial, onClose, onSave }) {
+interface Props {
+  initial: Invoice
+  onClose: () => void
+  onSave: () => void
+}
+export default function InvoiceEditor({ initial, onClose, onSave }: Props) {
+
   const [form, setForm] = useState({
     job_id: initial?.job_id || '',
     total_amount: initial?.total_amount || 0,
@@ -60,7 +67,10 @@ export default function InvoiceEditor({ initial, onClose, onSave }) {
           <select
             className="w-full border p-2"
             value={form.status}
-            onChange={(e) => setForm({ ...form, status: e.target.value })}
+            onChange={(e) =>
+              setForm({ ...form, status: e.target.value as Invoice['status'] })
+            }
+
           >
             <option value="draft">Draft</option>
             <option value="sent">Sent</option>

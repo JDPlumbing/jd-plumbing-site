@@ -1,23 +1,25 @@
-'use client'
-import { useEffect, useState } from 'react'
-import { getSettings, updateSetting } from '@/lib/settings'
+'use client';
+
+import { useEffect, useState } from 'react';
+import { getSettings, updateSetting } from '@/lib/settings';
+import type { Setting } from '@/types';
 
 export default function SettingsManager() {
-  const [settings, setSettings] = useState([])
+  const [settings, setSettings] = useState<Setting[]>([]);
 
   useEffect(() => {
-    fetchSettings()
-  }, [])
+    fetchSettings();
+  }, []);
 
   const fetchSettings = async () => {
-    const result = await getSettings()
-    setSettings(result)
-  }
+    const result = await getSettings();
+    setSettings(result);
+  };
 
   const handleChange = async (id: string, value: string) => {
-    await updateSetting(id, value)
-    fetchSettings()
-  }
+    await updateSetting(id, value);
+    fetchSettings();
+  };
 
   return (
     <div className="p-4 space-y-4">
@@ -34,5 +36,5 @@ export default function SettingsManager() {
         </div>
       ))}
     </div>
-  )
+  );
 }

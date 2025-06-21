@@ -1,16 +1,18 @@
 'use client'
+
 import { useEffect, useState } from 'react'
 import { fetchProjects } from '@/lib/projects'
+import type { Project } from '@/types'
 import ProjectEditor from './ProjectEditor'
 
 export default function ProjectsTable() {
-  const [projects, setProjects] = useState<any[]>([])
+  const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
-  const [selected, setSelected] = useState(null)
+  const [selected, setSelected] = useState<Project | null>(null)
 
   const load = () => {
     setLoading(true)
-    fetchProjects().then((data) => {
+    fetchProjects().then((data: Project[]) => {
       setProjects(data)
       setLoading(false)
     })
@@ -27,7 +29,19 @@ export default function ProjectsTable() {
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold">Projects</h2>
         <button
-          onClick={() => setSelected({})}
+          onClick={() =>
+            setSelected({
+              id: '',
+              title: '',
+              name: '',
+              description: '',
+              start_date: '',
+              end_date: '',
+              status: 'planning',
+              customer_id: '',
+              created_at: '',
+            })
+          }
           className="px-3 py-1 bg-blue-600 text-white rounded"
         >
           + New Project
@@ -52,10 +66,11 @@ export default function ProjectsTable() {
               onClick={() => setSelected(p)}
             >
               <td className="p-2">{p.id.slice(0, 8)}...</td>
-              <td className="p-2">{p.title}</td>
+              <td className="p-2">{p.title}</td> // ✅ fix this line
+
               <td className="p-2">{p.status}</td>
-              <td className="p-2">{p.start_date}</td>
-              <td className="p-2">{p.end_date}</td>
+              <td className="p-2">{p.start_date || '—'}</td>
+              <td className="p-2">{p.end_date || '—'}</td>
             </tr>
           ))}
         </tbody>

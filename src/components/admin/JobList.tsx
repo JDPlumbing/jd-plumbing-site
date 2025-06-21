@@ -1,21 +1,17 @@
-'use client';
-
 import { useState } from 'react';
 import type { Job } from '@/types';
 import { updateJob } from '@/lib/jobs';
 
 interface Props {
-  job: Job
-  updated_by: string
-  onUpdated: () => void
+  job: Job;
+  updated_by: string;
+  onUpdated: () => void;
 }
 
-
-
 export default function JobEditor({ job, updated_by, onUpdated }: Props) {
-  const [title, setTitle] = useState(job.title || '');
+  const [title, setTitle] = useState(job.title);
   const [description, setDescription] = useState(job.description || '');
-  const [status, setStatus] = useState<Job['status']>(job.status || 'pending');
+  const [status, setStatus] = useState<Job['status']>(job.status);
   const [saving, setSaving] = useState(false);
 
   const save = async () => {
@@ -25,9 +21,8 @@ export default function JobEditor({ job, updated_by, onUpdated }: Props) {
         title,
         description,
         status,
-        updated_by, // ← add this
+        updated_by,
       });
-
       onUpdated();
     } catch (e) {
       console.error(e);
@@ -36,8 +31,7 @@ export default function JobEditor({ job, updated_by, onUpdated }: Props) {
     }
   };
 
-  const inputClass =
-    'border rounded p-2 w-full bg-white text-black dark:bg-gray-800 dark:text-white';
+  const inputClass = 'border rounded p-2 w-full bg-white text-black dark:bg-gray-800 dark:text-white';
 
   return (
     <div className="mt-4 space-y-2">

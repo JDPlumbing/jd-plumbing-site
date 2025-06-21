@@ -1,4 +1,4 @@
-// lib/quotes.ts
+// src/lib/quotes.ts
 import { supabase } from '@/lib/supabase';
 import type { Quote } from '@/types';
 

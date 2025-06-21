@@ -1,19 +1,20 @@
 'use client'
+
 import { useEffect, useState } from 'react'
-import { fetchInvoices } from '@/lib/invoices'
+import { listInvoices } from '@/lib/invoices'
+import type { Invoice } from '@/types'
 import InvoiceEditor from './InvoiceEditor'
 
 export default function InvoicesTable() {
-  const [invoices, setInvoices] = useState<any[]>([])
+  const [invoices, setInvoices] = useState<Invoice[]>([])
   const [loading, setLoading] = useState(true)
-  const [selected, setSelected] = useState(null)
+  const [selected, setSelected] = useState<Invoice | null>(null)
 
   const load = () => {
     setLoading(true)
-    fetchInvoices().then((data) => {
-      setInvoices(data)
-      setLoading(false)
-    })
+    listInvoices()
+      .then((data) => setInvoices(data))
+      .finally(() => setLoading(false))
   }
 
   useEffect(() => {
@@ -27,7 +28,7 @@ export default function InvoicesTable() {
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold">Invoices</h2>
         <button
-          onClick={() => setSelected({})}
+          onClick={() => setSelected({} as Invoice)}
           className="px-3 py-1 bg-blue-600 text-white rounded"
         >
           + New Invoice
@@ -51,9 +52,9 @@ export default function InvoicesTable() {
               className="border-t cursor-pointer hover:bg-gray-100"
               onClick={() => setSelected(inv)}
             >
-              <td className="p-2">{inv.id.slice(0, 8)}...</td>
-              <td className="p-2">{inv.job_id}</td>
-              <td className="p-2">${inv.total_amount?.toFixed(2)}</td>
+              <td className="p-2">{inv.id?.slice(0, 8)}...</td>
+              <td className="p-2">{inv.job_id || '-'}</td>
+              <td className="p-2">${inv.total_amount?.toFixed(2) || '0.00'}</td>
               <td className="p-2">{inv.status}</td>
               <td className="p-2">{inv.due_date}</td>
             </tr>

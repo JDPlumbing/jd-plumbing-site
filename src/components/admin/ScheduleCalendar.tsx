@@ -1,30 +1,40 @@
 'use client'
+
 import { useEffect, useState } from 'react'
 import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import { listJobs } from '@/lib/jobs'
+import type { Job } from '@/types'
+
+type CalendarEvent = {
+  id: string
+  title: string
+  start: string
+  end: string
+}
 
 export default function ScheduleCalendar() {
-  const [events, setEvents] = useState([])
+  const [events, setEvents] = useState<CalendarEvent[]>([])
 
   useEffect(() => {
     fetchJobs()
   }, [])
 
   const fetchJobs = async () => {
-    const jobs = await listJobs()
-    const mapped = jobs
-      .filter((j: any) => j.scheduled_for)
-      .map((j: any) => ({
-        id: j.id,
-        title: j.title || 'Job',
-        start: j.scheduled_for,
-        end: j.scheduled_for,
-      }))
-    setEvents(mapped)
-  }
+  const jobs = await listJobs()
+  const mapped: CalendarEvent[] = jobs
+    .filter((j): j is Job & { scheduled_for: string } => !!j.scheduled_for)
+    .map((j) => ({
+      id: j.id,
+      title: j.title || 'Job',
+      start: j.scheduled_for,
+      end: j.scheduled_for,
+    }))
+  setEvents(mapped)
+}
+
 
   return (
     <div className="p-4">

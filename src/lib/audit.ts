@@ -1,18 +1,8 @@
-import { createClient } from '@/lib/supabase'
+import { supabase } from '@/lib/supabase'
+import type { AuditLog } from '@/types'
 
-const supabase = createClient()
-
-export async function listAuditLogs() {
-  const { data, error } = await supabase
-    .from('audit')
-    .select('*')
-    .order('timestamp', { ascending: false })
-    .limit(100)
-
-  if (error) {
-    console.error('[audit:list]', error)
-    return []
-  }
-
-  return data
+export async function listAuditLogs(): Promise<AuditLog[]> {
+  const { data, error } = await supabase.from('audit_logs').select('*').order('timestamp', { ascending: false })
+  if (error) throw error
+  return data || []
 }

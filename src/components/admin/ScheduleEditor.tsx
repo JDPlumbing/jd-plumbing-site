@@ -1,26 +1,57 @@
 'use client'
+
 import { useState } from 'react'
 import { createSchedule, updateSchedule, deleteSchedule } from '@/lib/schedules'
+import type { Schedule } from '@/types'
 
-export default function ScheduleEditor({ initial, onClose, onSave }) {
-  const [form, setForm] = useState({
-    title: initial?.title || '',
-    type: initial?.type || 'visit',
-    scheduled_for: initial?.scheduled_for?.slice(0, 10) || '',
-    person_id: initial?.person_id || '',
-    project_id: initial?.project_id || ''
+interface Props {
+  initial: Schedule
+  onClose: () => void
+  onSave: () => void
+}
+
+interface ScheduleForm {
+  title: string
+  type: 'visit' | 'inspection' | 'call' | 'meeting'
+  scheduled_for: string
+  person_id: string
+  project_id: string
+}
+
+export default function ScheduleEditor({ initial, onClose, onSave }: Props) {
+  // ✅ Extract all defaults up front so TS stops whining
+  const {
+    title = '',
+    type = 'visit',
+    scheduled_for = '',
+    person_id = '',
+    project_id = ''
+  } = initial
+
+  const [form, setForm] = useState<ScheduleForm>({
+    title,
+    type,
+    scheduled_for: scheduled_for.slice(0, 10),
+    person_id,
+    project_id
   })
+
   const [saving, setSaving] = useState(false)
 
   const handleSave = async () => {
     setSaving(true)
-    if (initial?.id) {
-      await updateSchedule(initial.id, form)
-    } else {
-      await createSchedule(form)
+    try {
+      if (initial?.id) {
+        await updateSchedule(initial.id, form)
+      } else {
+        await createSchedule(form)
+      }
+      onSave()
+    } catch (e) {
+      console.error(e)
+    } finally {
+      setSaving(false)
     }
-    setSaving(false)
-    onSave()
   }
 
   const handleDelete = async () => {
@@ -51,7 +82,7 @@ export default function ScheduleEditor({ initial, onClose, onSave }) {
           <select
             className="w-full border p-2"
             value={form.type}
-            onChange={(e) => setForm({ ...form, type: e.target.value })}
+            onChange={(e) => setForm({ ...form, type: e.target.value as ScheduleForm['type'] })}
           >
             <option value="visit">Visit</option>
             <option value="inspection">Inspection</option>

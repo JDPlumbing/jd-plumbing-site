@@ -1,8 +1,16 @@
 'use client'
+
 import { useState } from 'react'
+import type { Quote } from '@/types'
 import { createQuote, updateQuote, deleteQuote } from '@/lib/quotes'
 
-export default function QuoteEditor({ initial, onClose, onSave }) {
+interface Props {
+  initial?: Quote
+  onClose: () => void
+  onSave: () => void
+}
+
+export default function QuoteEditor({ initial, onClose, onSave }: Props) {
   const [form, setForm] = useState({
     title: initial?.title || '',
     status: initial?.status || 'draft',
@@ -10,6 +18,7 @@ export default function QuoteEditor({ initial, onClose, onSave }) {
     scope: initial?.scope || '',
     exclusions: initial?.exclusions || ''
   })
+
   const [saving, setSaving] = useState(false)
 
   const handleSave = async () => {
@@ -29,6 +38,8 @@ export default function QuoteEditor({ initial, onClose, onSave }) {
       onSave()
     }
   }
+
+  // ... rest of the JSX remains unchanged
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
@@ -51,7 +62,10 @@ export default function QuoteEditor({ initial, onClose, onSave }) {
           <select
             className="w-full border p-2"
             value={form.status}
-            onChange={(e) => setForm({ ...form, status: e.target.value })}
+            onChange={(e) =>
+                setForm({ ...form, status: e.target.value as 'draft' | 'sent' | 'accepted' | 'rejected' })
+              }
+
           >
             <option value="draft">Draft</option>
             <option value="sent">Sent</option>

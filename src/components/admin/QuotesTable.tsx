@@ -1,19 +1,24 @@
 'use client'
-import { useEffect, useState } from 'react'
-import { fetchQuotes } from '@/lib/quotes'
-import QuoteEditor from './QuoteEditor'
 
+import { useEffect, useState } from 'react'
+import { listQuotes } from '@/lib/quotes'
+import type { Quote } from '@/types'
+import QuoteEditor from './QuoteEditor'
+interface Props {
+  initial?: Quote;
+  onClose: () => void;
+  onSave: () => void;
+}
 export default function QuotesTable() {
-  const [quotes, setQuotes] = useState<any[]>([])
+  const [quotes, setQuotes] = useState<Quote[]>([])
   const [loading, setLoading] = useState(true)
-  const [selected, setSelected] = useState(null)
+  const [selected, setSelected] = useState<Quote | null>(null)
 
   const load = () => {
     setLoading(true)
-    fetchQuotes().then((data) => {
-      setQuotes(data)
-      setLoading(false)
-    })
+    listQuotes()
+      .then((data) => setQuotes(data))
+      .finally(() => setLoading(false))
   }
 
   useEffect(() => {
@@ -27,7 +32,7 @@ export default function QuotesTable() {
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold">Quotes</h2>
         <button
-          onClick={() => setSelected({})}
+          onClick={() => setSelected({} as Quote)}
           className="px-3 py-1 bg-blue-600 text-white rounded"
         >
           + New Quote
@@ -50,10 +55,10 @@ export default function QuotesTable() {
               className="border-t cursor-pointer hover:bg-gray-100"
               onClick={() => setSelected(q)}
             >
-              <td className="p-2">{q.id.slice(0, 8)}...</td>
+              <td className="p-2">{q.id?.slice(0, 8)}...</td>
               <td className="p-2">{q.title}</td>
               <td className="p-2">{q.status}</td>
-              <td className="p-2">${q.total_amount}</td>
+              <td className="p-2">${q.total_amount?.toFixed(2) || '0.00'}</td>
             </tr>
           ))}
         </tbody>
