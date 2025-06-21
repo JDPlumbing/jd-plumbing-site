@@ -8,17 +8,6 @@ export type Job = {
   quoted_price?: number
   created_at: string
 }
-export type Task = {
-  id: string
-  title: string
-  description?: string
-  assigned_to: string
-  created_by: string
-  due_date?: string
-  status: string
-  related_job_id?: string
-  created_at: string
-}
 export type Person = {
   id: string
   name: string
@@ -34,5 +23,16 @@ export type Address = {
   state: string
   zip_code: string
   country: string
+  created_at: string
+}
+export type Task = {
+  id: string
+  title: string
+  description?: string
+  assigned_to: string
+  created_by: string
+  due_date?: string
+  status: 'todo' | 'in_progress' | 'done' | 'cancelled'
+  related_job_id?: string
   created_at: string
 }

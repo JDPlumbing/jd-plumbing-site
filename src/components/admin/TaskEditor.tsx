@@ -1,25 +1,24 @@
 'use client'
 
 import { useState } from 'react'
-import { Job } from '@/types'
-import { updateJob } from '@/lib/jobs'
+import { Task } from '@/types'
+import { updateTask } from '@/lib/tasks'
 
-export default function JobEditor({
-  job,
+export default function TaskEditor({
+  task,
   onUpdated
 }: {
-  job: Job
+  task: Task
   onUpdated: () => void
 }) {
-  const [title, setTitle] = useState(job.title)
-  const [description, setDescription] = useState(job.description || '')
-  const [status, setStatus] = useState(job.status)
+  const [title, setTitle] = useState(task.title)
+  const [status, setStatus] = useState(task.status)
   const [saving, setSaving] = useState(false)
 
   async function save() {
     setSaving(true)
     try {
-      await updateJob(job.id, { title, description, status })
+      await updateTask(task.id, { title, status })
       onUpdated()
     } catch (e) {
       console.error(e)
@@ -37,24 +36,19 @@ export default function JobEditor({
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         className={inputClass}
-        placeholder="Job title"
-      />
-      <textarea
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-        className={inputClass}
-        placeholder="Job description"
+        placeholder="Task title"
       />
       <select
         value={status}
-        onChange={(e) => setStatus(e.target.value)}
+        onChange={(e) => setStatus(e.target.value as Task['status'])}
         className={inputClass}
-      >
+        >
         <option value="todo">To Do</option>
         <option value="in_progress">In Progress</option>
         <option value="done">Done</option>
         <option value="cancelled">Cancelled</option>
-      </select>
+        </select>
+
       <button
         onClick={save}
         disabled={saving}

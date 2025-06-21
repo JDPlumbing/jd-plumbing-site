@@ -1,35 +1,26 @@
-// src/lib/jobs.ts
+import { supabase } from './supabase'
 import { Job } from '@/types'
-import { supabase } from '@/lib/supabase'
 
-
-export async function listJobs(filters: {
-  assigned_to?: string
-  status?: string
-} = {}) {
-  const res = await fetch('/api/jobs/list', {
-    method: 'POST',
-    body: JSON.stringify(filters),
-    headers: { 'Content-Type': 'application/json' }
-  })
-
-  const data = await res.json()
-  if (!res.ok) throw new Error(data.error || 'Failed to fetch jobs')
-  return data.jobs as Job[]
+export async function listJobs(): Promise<Job[]> {
+  const { data, error } = await supabase
+    .from('jobs')
+    .select('*')
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return data || []
 }
 
-export async function updateJob(id: string, updated_by: string, updates: Partial<Job>) {
-  const res = await fetch('/api/jobs/update', {
-    method: 'PATCH',
-    body: JSON.stringify({
-      id,
-      updated_by,
-      updates
-    }),
-    headers: { 'Content-Type': 'application/json' }
-  })
+export async function createJob(input: Partial<Job>) {
+  const { error } = await supabase.from('jobs').insert([input])
+  if (error) throw error
+}
 
-  const data = await res.json()
-  if (!res.ok) throw new Error(data.error || 'Failed to update job')
-  return data.job as Job
+export async function updateJob(id: string, updates: Partial<Job>) {
+  const { error } = await supabase.from('jobs').update(updates).eq('id', id)
+  if (error) throw error
+}
+
+export async function deleteJob(id: string) {
+  const { error } = await supabase.from('jobs').delete().eq('id', id)
+  if (error) throw error
 }
